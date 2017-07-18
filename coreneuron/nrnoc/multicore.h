@@ -127,8 +127,8 @@ typedef struct NrnThread {
     int* _net_send_buffer;
 
     int* _watch_types; /* NULL or 0 terminated array of integers */
-    void* mapping; /* section to segment mapping information */
-
+    void* mapping;     /* section to segment mapping information */
+    int file_id;       /* File Id of this NrnThread */
 } NrnThread;
 
 extern void nrn_threads_create(int n, int parallel);
