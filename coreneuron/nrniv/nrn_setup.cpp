@@ -1592,10 +1592,12 @@ for (int i=0; i < nt.end; ++i) {
     nt.npnt    = F.read_int();
     nt.icnt    = new int     [nt.npnt];
     nt.dcnt    = new int     [nt.npnt];
-    nt.iArrays = new int*    [nt.npnt];
-    nt.dArrays = new double* [nt.npnt];
+//    nt.iArrays = new int*    [nt.npnt];
+//    nt.dArrays = new double* [nt.npnt];
     nt.type    = new int     [nt.npnt];
     for (int i = 0; i < nt.npnt; ++i) {
+        int* iArray = NULL;
+        double* dArray = NULL;
         int type = F.read_int();
         nt.type[i] = type;
         assert(nrn_bbcore_read_[type]);
@@ -1604,13 +1606,11 @@ for (int i=0; i < nt.end; ++i) {
         nt.icnt[i]  = icnt;
         nt.dcnt[i]  = dcnt;
         if (icnt) {
-            nt.iArrays[i] = F.read_array<int>(icnt);
+           iArray = F.read_array<int>(icnt);
         }
         if (dcnt) {
-            nt.dArrays[i] = F.read_array<double>(dcnt);
+           dArray = F.read_array<double>(dcnt);
         }
-        int* iArray    = nt.iArrays[i];
-        double* dArray = nt.dArrays[i];
         int ik = 0;
         int dk = 0;
         Memb_list* ml = nt.mlmap[type];
@@ -1634,13 +1634,12 @@ for (int i=0; i < nt.end; ++i) {
         assert(dk == dcnt);
         assert(ik == icnt);
         if (ik) {
-//            delete[] iArray;
+          delete[] iArray;
         }
         if (dk) {
- //           delete[] dArray;
+          delete[] dArray;
         }
     }
-//    delete[] mlmap;
 
     // VecPlayContinuous instances
     // No attempt at memory efficiency
