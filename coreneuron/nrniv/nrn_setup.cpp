@@ -49,7 +49,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "coreneuron/utils/reports/nrnreport.h"
 #include "coreneuron/utils/reports/nrnsection_mapping.h"
 
-
 // file format defined in cooperation with nrncore/src/nrniv/nrnbbcore_write.cpp
 // single integers are ascii one per line. arrays are binary int or double
 // Note that regardless of the gid contents of a group, since all gids are
@@ -230,7 +229,8 @@ void nrn_read_filesdat(int& ngrp, int*& grp, int multiple, int*& imult, const ch
     }
 
     if (nrnmpi_numprocs > iNumFiles && nrnmpi_myid == 0) {
-        printf("Info : The number of input datasets are less than ranks, some ranks will be idle!\n");
+        printf(
+            "Info : The number of input datasets are less than ranks, some ranks will be idle!\n");
     }
 
     ngrp = 0;
@@ -267,9 +267,9 @@ void read_phase1(FileHandler& F, int imult, NrnThread& nt) {
     nt.output_gids = new int[nt.n_presyn];
     nt.presyns_helper = (PreSynHelper*)ecalloc(nt.n_presyn, sizeof(PreSynHelper));
 
-    /// Checkpoint in coreneuron is defined for both phase 1 and phase 2 since they are written together
-    /// output_gid has all of output PreSyns, netcon_srcgid is created for NetCons which might be
-    /// 10k times more than output_gid.
+    /// Checkpoint in coreneuron is defined for both phase 1 and phase 2 since they are written
+    /// together output_gid has all of output PreSyns, netcon_srcgid is created for NetCons which
+    /// might be 10k times more than output_gid.
     int* output_gid = F.read_array<int>(nt.n_presyn);
     memcpy (nt.output_gids, output_gid, sizeof(int) * nt.n_presyn); 
     // the extra netcon_srcgid will be filled in later
@@ -644,8 +644,8 @@ void nrn_setup(const char* filesdat, int byte_swap, bool run_setup_cleanup) {
     double mindelay = set_mindelay(nrnopt_get_dbl("--mindelay"));
     nrnopt_modify_dbl("--mindelay", mindelay);
 
-    if (run_setup_cleanup) //if run_setup_cleanup==false, user must call nrn_setup_cleanup() later
-       nrn_setup_cleanup();
+    if (run_setup_cleanup)  // if run_setup_cleanup==false, user must call nrn_setup_cleanup() later
+        nrn_setup_cleanup();
 
 #if INTERLEAVE_DEBUG
     mk_cell_indices();
@@ -792,10 +792,23 @@ inline void mech_layout(FileHandler& F, T* data, int cnt, int sz, int layout) {
  * allocated with malloc(). This is not the case here, so let's try and fix
  * things up first. */
 
-void nrn_cleanup() {
+void nrn_cleanup(bool clean_ion_global_map) {
     gid2in.clear();
     gid2out.clear();
 
+    // clean ezOpt parser allocated memory (if any)
+    nrnopt_delete();
+
+    // clean ions global maps
+    if (clean_ion_global_map) {
+        for (int i = 0; i < nrn_ion_global_map_size; i++)
+            free(nrn_ion_global_map[i]);
+        free(nrn_ion_global_map);
+        nrn_ion_global_map = NULL;
+        nrn_ion_global_map_size = 0;
+    }
+
+    // clean NrnThreads
     for (int it = 0; it < nrn_nthread; ++it) {
         NrnThread* nt = nrn_threads + it;
         NrnThreadMembList* next_tml = NULL;
@@ -947,11 +960,12 @@ void read_phase2(FileHandler& F, int imult, NrnThread& nt) {
     nrn_assert(n_outputgid > 0);  // avoid n_outputgid unused warning
     nt.ncell = F.read_int();
     nt.end = F.read_int();
-    int ndiam = F.read_int(); // 0 if not needed, else nt.end
+    int ndiam = F.read_int();  // 0 if not needed, else nt.end
     int nmech = F.read_int();
     nt.nmech = nmech;
 
-    /// Checkpoint in coreneuron is defined for both phase 1 and phase 2 since they are written together
+    /// Checkpoint in coreneuron is defined for both phase 1 and phase 2 since they are written
+    /// together
     // printf("ncell=%d end=%d nmech=%d\n", nt.ncell, nt.end, nmech);
     // printf("nart=%d\n", nart);
     NrnThreadMembList* tml_last = NULL;
@@ -1096,12 +1110,15 @@ void read_phase2(FileHandler& F, int imult, NrnThread& nt) {
     }
 
     // matrix info
-    nt._v_parent_index              = (int*)coreneuron::ecalloc_align(nt.end, NRN_SOA_BYTE_ALIGN, sizeof(int));
+    nt._v_parent_index = (int*)coreneuron::ecalloc_align(nt.end, NRN_SOA_BYTE_ALIGN, sizeof(int));
+    ;
     F.read_array<int>(nt._v_parent_index, nt.end);
+
     F.read_array<double>(nt._actual_a, nt.end);
     F.read_array<double>(nt._actual_b, nt.end);
     F.read_array<double>(nt._actual_area, nt.end);
     F.read_array<double>(nt._actual_v, nt.end);
+
     if (ndiam) {
         F.read_array<double>(nt._actual_diam, nt.end);
     }
@@ -1198,7 +1215,7 @@ void read_phase2(FileHandler& F, int imult, NrnThread& nt) {
                     nrn_assert((ix >= 0) && (ix < nt.end));
                     *pd = area0 + ix;
                 }
-            }else if (s == -9) {  // diam
+            } else if (s == -9) {  // diam
                 int diam0 = nt._actual_diam - nt._data;
                 for (int iml = 0; iml < cnt; ++iml) {
                     int* pd = pdata + nrn_i_layout(iml, cnt, i, szdp, layout);
@@ -1396,14 +1413,14 @@ for (int i=0; i < nt.end; ++i) {
     // for fast watch statement checking
     // setup a list of types that have WATCH statement
     {
-        int sz = 0; // count the types with WATCH
+        int sz = 0;  // count the types with WATCH
         for (NrnThreadMembList* tml = nt.tml; tml; tml = tml->next) {
             if (nrn_watch_check[tml->index]) {
                 ++sz;
             }
         }
         if (sz) {
-            nt._watch_types = (int*)ecalloc(sz + 1, sizeof(int)); // NULL terminated
+            nt._watch_types = (int*)ecalloc(sz + 1, sizeof(int));  // NULL terminated
             sz = 0;
             for (NrnThreadMembList* tml = nt.tml; tml; tml = tml->next) {
                 if (nrn_watch_check[tml->index]) {
@@ -1449,7 +1466,7 @@ for (int i=0; i < nt.end; ++i) {
         PreSyn* ps = nt.presyns + i;
 
         int ix = output_vindex[i];
-        if (ix == -1 && i < nt.ncell) { // real cell without a presyn
+        if (ix == -1 && i < nt.ncell) {  // real cell without a presyn
             continue;
         }
         if (ix < 0) {
@@ -1596,10 +1613,10 @@ for (int i=0; i < nt.end; ++i) {
         nt.icnt[i]  = icnt;
         nt.dcnt[i]  = dcnt;
         if (icnt) {
-           iArray = F.read_array<int>(icnt);
+            iArray = F.read_array<int>(icnt);
         }
         if (dcnt) {
-           dArray = F.read_array<double>(dcnt);
+            dArray = F.read_array<double>(dcnt);
         }
         int ik = 0;
         int dk = 0;
@@ -1624,10 +1641,10 @@ for (int i=0; i < nt.end; ++i) {
         assert(dk == dcnt);
         assert(ik == icnt);
         if (ik) {
-          delete[] iArray;
+            delete[] iArray;
         }
         if (dk) {
-          delete[] dArray;
+            delete[] dArray;
         }
     }
 
@@ -1745,17 +1762,16 @@ void read_phase3(FileHandler& F, int imult, NrnThread& nt) {
 
     /** for every neuron */
     for (int i = 0; i < nt.ncell; i++) {
-
         int gid, nsec, nseg, nseclist;
 
         // read counts
         F.read_mapping_count(&gid, &nsec, &nseg, &nseclist);
 
-        CellMapping *cmap = new CellMapping(gid);
+        CellMapping* cmap = new CellMapping(gid);
 
         // read section-segment mapping for every section list
-        for(int j = 0; j < nseclist; j++) {
-            SecMapping *smap = new SecMapping();
+        for (int j = 0; j < nseclist; j++) {
+            SecMapping* smap = new SecMapping();
             F.read_mapping_info(smap);
             cmap->add_sec_map(smap);
         }
@@ -1764,7 +1780,7 @@ void read_phase3(FileHandler& F, int imult, NrnThread& nt) {
     }
 
     // make number #cells match with mapping size
-    nrn_assert( (int)ntmapping->size() ==  nt.ncell);
+    nrn_assert((int)ntmapping->size() == nt.ncell);
 
     // set pointer in NrnThread
     nt.mapping = (void*)ntmapping;

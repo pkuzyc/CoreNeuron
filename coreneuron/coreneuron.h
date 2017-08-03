@@ -42,16 +42,13 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "coreneuron/scopmath_core/newton_struct.h"  //Newton Struct
 #include "coreneuron/nrnoc/membdef.h"                //static definitions
 #include "coreneuron/nrnoc/nrnoc_ml.h"               //Memb_list and mechs info
+#include "coreneuron/utils/randoms/nrnran123.h"      //Random Number Generator
 
 #if defined(__cplusplus)
+#include "coreneuron/nrniv/memory.h"  //Memory alignments and padding
+
 extern "C" {
 #endif
-
-// global variables required by mechanisms
-// TODO requires #include coreneuron/coreneuron.h in all mechs
-// extern double celsius; //from coreneuron/coreneuron/nrnconf.h
-// extern int nrn_ion_global_map_size; //from coreneuron/nrnoc/membfunc.h
-// extern double** nrn_ion_global_map; //from coreneuron/nrnoc/membfunc.h
 
 #ifdef EXPORT_MECHS_FUNCTIONS
 // from (auto-generated) mod_func_ptrs.c
