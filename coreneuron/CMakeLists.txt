@@ -36,15 +36,10 @@ file(GLOB_RECURSE coreneuron_cuda_files "*.cu")
 
 # Compile and include MOD files
 
-find_program(MOD2C mod2c_core)
-if(MOD2C STREQUAL "MOD2C-NOTFOUND")
-message(FATAL_ERROR "Unable to locate mod2c_core executable")
-endif()
-
 # mod2c_core wants MODLUNIT set to point to its units file,
 # but CMake does not support setting an environment for custom_commands.
 
-get_filename_component(mod2c_install_prefix ${MOD2C} DIRECTORY)
+get_filename_component(mod2c_install_prefix ${mod2c_BINARY} DIRECTORY)
 find_file(MOD2C_UNITS nrnunits.lib HINT "${mod2c_install_prefix}" PATH_SUFFIXES "share")
 if(NOT MOD2C_UNITS STREQUAL "MOD2C_UNITS-NOTFOUND")
 set(MOD2C env "MODLUNIT=${MOD2C_UNITS}" ${MOD2C})
@@ -71,9 +66,9 @@ macro(mod2c_target name input)
     list(APPEND MOD2C_${name}_MODS "${mod2c_modname_}")
 
     add_custom_command(OUTPUT "${mod2c_output_}"
-      DEPENDS ${input} "${mod2c_install_prefix}/mod2c_core"
+      DEPENDS ${input} ${mod2c_BINARY}
       COMMAND ${CMAKE_COMMAND} -E copy "${mod2c_source_}" "${CMAKE_CURRENT_BINARY_DIR}"
-      COMMAND ${MOD2C} "${mod2c_modname_}"
+      COMMAND ${mod2c_BINARY} "${mod2c_modname_}"
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 endmacro()
 

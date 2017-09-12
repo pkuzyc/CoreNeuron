@@ -65,11 +65,6 @@ void write_checkpoint(NrnThread* nt, int nb_threads, const char* dir, bool swap_
     output_dir = dir;
     int i;
     swap_bytes = swap_bytes_order;
-    /*
-    #if defined(_OPENMP)
-      #pragma omp parallel for private(i) shared(nt, nb_threads) schedule(runtime)
-    #endif
-    */
     FileHandler f;
     for (i = 0; i < nb_threads; i++) {
         write_phase1(nt[i], f);
@@ -95,6 +90,7 @@ static void write_phase1(NrnThread& nt, FileHandler& file_handle) {
     file_handle.close();
     //  free (netcon_srcgid);
 }
+
 
 static void write_phase2(NrnThread& nt, FileHandler& file_handle) {
     std::ostringstream filename;
