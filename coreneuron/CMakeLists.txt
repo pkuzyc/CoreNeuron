@@ -28,6 +28,7 @@
 include_directories(utils/randoms)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${MPI_INCLUDE_PATH})
+include_directories(${VTUNE_INCLUDE_DIR})
 
 FILE(GLOB_RECURSE coreneuron_all_headers "*.h")
 FILE(GLOB_RECURSE coreneuron_all_templates "*.ipp")

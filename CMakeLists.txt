@@ -60,6 +60,7 @@ option(ENABLE_SPLAYTREE_QUEUING "Enable use of Splay tree for spike queuing" OFF
 option(ENABLE_CUDA_MODULES "Enable modules like Random123 written in CUDA" ON)
 option(ENABLE_NET_RECEIVE_BUFFERING "Enable event buffering in net_receive function" ON)
 option(ENABLE_OMP_RUNTIME_SCHEDULE "Use runtime schedule for OpenMP" OFF)
+option(ENABLE_VTUNE "Build CoreNeuron with Vtune" ON)
 
 ## mech / mod options
 set(ADDITIONAL_MECHPATH "" CACHE PATH "Search path for optional additional mechanism MOD files")
@@ -188,6 +189,15 @@ if(CLANG_FORMAT_FOUND)
         -DCLANG_FORMAT_EXECUTABLE=${CLANG_FORMAT_EXECUTABLE}
         -P "${PROJECT_SOURCE_DIR}/CMake/ClangFormatUtils.cmake"
         )
+endif()
+
+if(ENABLE_VTUNE)
+  find_package(VTune)
+  if (VTUNE_FOUND)
+    add_definitions(-DVTUNE_PROFILING)
+  else()
+    message (FATAL_ERROR "Error: Cannot find Intel Vtune Profiler needed for option ENABLE_VTUNE")
+  endif()
 endif()
 
 #Turn off inline assembly for PGI
