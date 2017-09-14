@@ -38,7 +38,9 @@ set(TEST_CASE_ARGS
     "ring_multisend!${RING_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_multisend --multisend"
     "ring_permute1!${RING_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_permute1 ${PERMUTE1_ARGS}"
     "ring_permute2!${RING_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_permute2 ${PERMUTE2_ARGS}"
-    "ring_savestate!${RING_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate -ck ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate"
+    "ring_savestate_permute0!${RING_COMMON_ARGS} -e 0 -R 0 --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute0 -ck ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute0"
+    "ring_savestate_permute1!${RING_COMMON_ARGS} -e 0 -R 1 --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute1 -ck ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute1"
+    "ring_savestate_permute2!${RING_COMMON_ARGS} -e 0 -R 2 --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute2 -ck ${CMAKE_CURRENT_BINARY_DIR}/ring_savestate_permute2"
 
     "ring_gap!${RING_GAP_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_gap"
     "ring_gap_binqueue!${RING_GAP_COMMON_ARGS} --outpath ${CMAKE_CURRENT_BINARY_DIR}/ring_gap_binqueue --binqueue"
@@ -53,7 +55,9 @@ foreach(data_dir "ring" "ring_gap")
     endforeach()
 endforeach()
 file (GLOB INPUT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ring/*.dat")
-file (COPY ${INPUT_FILES} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/ring_savestate")
+file (COPY ${INPUT_FILES} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/ring_savestate_permute0")
+file (COPY ${INPUT_FILES} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/ring_savestate_permute1")
+file (COPY ${INPUT_FILES} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/ring_savestate_permute2")
 
 #Configure test scripts
 foreach (args_line ${TEST_CASE_ARGS})
