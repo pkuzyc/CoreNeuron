@@ -1,0 +1,29 @@
+#!/bin/sh
+
+CURRENT_DIR=`pwd`
+BUILD_DIR=`mktemp -d`
+trap "rm -rf $BUILD_DIR" EXIT
+if [ "$#" -eq 0 ]; then
+  MOD_DIR=$PROJECT_MECHS
+else
+  MOD_DIR=$1
+fi
+
+# call mod2c on every modl file and fill C_FILES array with generated c file names
+
+C_FILES=()
+MODLUNIT=${INSTALL_DIR}/share/nrnunits.lib
+for MOD_FILE in `ls ${MOD_DIR}/*.mod`; do
+  basename=${MOD_FILE##*/}
+  basename=${basename%.*}
+  ${INSTALL_DIR}/bin/mod2c_core ${MOD_FILE} -o ${BUILD_DIR}
+  C_FILES +=(${basename})
+done
+
+O_FILES=""
+for c_file in "${C_FILES[@]}"; do
+  $COMPILER $COMPILE_FLAGS -c ${c_file}.c -o ${BUILD_FIR}/${c_file}.o
+  O_FILES="${O_FILES} ${basename}.o"
+done
+
+$LINKER $LINK_FLAGS ${O_FILES} $CORENEURON_LIBRARY $CORENEURON_MAIN -o $EXECUTABLE

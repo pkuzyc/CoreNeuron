@@ -23,5 +23,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-add_subdirectory(coreneuron_exec)
-add_subdirectory(nrnivmodl_core)
+
+configure_file(nrnivmodl_core.in nrnivmodl_core)
+install(FILES nrnivmodl_core DESTINATION ${BIN_INSTALL_DIR}/)
+install(FILES resources ${BIN_INSTALL_DIR})

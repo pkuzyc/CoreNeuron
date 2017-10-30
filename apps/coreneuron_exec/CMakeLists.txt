@@ -1,4 +1,4 @@
-# Copyright (c) 2017, Blue Brain Project
+# Copyright (c) 2016, Blue Brain Project
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without modification,
@@ -23,5 +23,21 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
-add_subdirectory(coreneuron_exec)
-add_subdirectory(nrnivmodl_core)
+
+
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/coreneuron ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_BINARY_DIR}/coreneuron)
+
+# The mechanism registration function will be always defined from extra mechanisms in test directory
+add_definitions(-DADDITIONAL_MECHS)
+
+add_executable(coreneuron_exec "${CMAKE_CURRENT_SOURCE_DIR}/coreneuron.cpp")
+
+set_target_properties(coreneuron_exec PROPERTIES
+                            OUTPUT_NAME "coreneuron_exec"
+                            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+target_link_libraries(coreneuron_exec coreneuron ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${reportinglib_LIBRARY})
+
+install(TARGETS coreneuron_exec
+         DESTINATION ${BIN_INSTALL_DIR}/)
+
