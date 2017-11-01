@@ -24,6 +24,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 
+set (PROJECT_MECHS "")
+set (INSTALL_DIR "")
+set (COMPILER "")
+set (COMPILER_FLAGS "")
+set (LINKER "")
+set (LINKER_FLAGS "")
+set (CORENEURON_LIBRARY "")
+set (CORENEURON_MAIN "")
+set (GPU_COMPILER "")
+set (GPU_FLAGS "")
 configure_file(nrnivmodl_core.in nrnivmodl_core)
 install(FILES nrnivmodl_core DESTINATION ${BIN_INSTALL_DIR}/)
 install(FILES resources ${BIN_INSTALL_DIR})

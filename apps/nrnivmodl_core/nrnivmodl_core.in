@@ -2,11 +2,32 @@
 
 CURRENT_DIR=`pwd`
 BUILD_DIR=`mktemp -d`
-trap "rm -rf $BUILD_DIR" EXIT
-if [ "$#" -eq 0 ]; then
+trap "rm -rf ${BUILD_DIR}" EXIT
+EXECUTABLE="$INSTALL_DIR/core_special"
+MOD_DIR=()
+while [[$# -gt 0 ]]
+do
+key="$1"
+#TODO add an option to specify some other files to add (or small GUI ?)
+case $key in
+  -m|--modl)
+    MOD_DIR+=("$2")
+  shift
+  shift
+  ;;
+  -o|--output)
+    EXECUTABLE="$2"
+    shift
+    shift
+    ;;
+  -h|--help)
+    echo "nrnivmodl_core [[-o|--output] <EXECUTABLE_NAME>] [[-m|--mechs] <MODL_DIRECTORY>] "
+    echo "nrnivmodl_core is compiling with: $COMPILER"
+esac
+
+#if we havent specify any mod dirs, add Project mod files
+if [ ! "${MOD_DIR[@]}"]; then
   MOD_DIR=$PROJECT_MECHS
-else
-  MOD_DIR=$1
 fi
 
 # call mod2c on every modl file and fill C_FILES array with generated c file names
@@ -26,4 +47,4 @@ for c_file in "${C_FILES[@]}"; do
   O_FILES="${O_FILES} ${basename}.o"
 done
 
-$LINKER $LINK_FLAGS ${O_FILES} $CORENEURON_LIBRARY $CORENEURON_MAIN -o $EXECUTABLE
+$LINKER $LINK_FLAGS ${O_FILES} $CORENEURON_LIBRARY $CORENEURON_MAIN -o ${EXECUTABLE}
