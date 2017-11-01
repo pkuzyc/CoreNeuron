@@ -40,7 +40,7 @@ file(GLOB_RECURSE coreneuron_cuda_files "*.cu")
 set (MOD2C ${PROJECT_BINARY_DIR}/external/mod2c/bin/mod2c_core)
 get_filename_component(mod2c_install_prefix ${MOD2C} DIRECTORY)
 set (MOD2C_UNITS "${PROJECT_BINARY_DIR}/external/mod2c/share/nrnunits.lib")
-set(MOD2C env "MODLUNIT=${MOD2C_UNITS}" ${MOD2C})
+set (MOD2C env "MODLUNIT=${MOD2C_UNITS}" ${MOD2C})
 # Macro sets up build rule for .c files from .mod files.
 # Parameters:
 #    name     An arbitrary name to keep track of output .c files
@@ -245,8 +245,6 @@ if(ENABLE_OPENACC)
     endif()
 endif()
 
-set(coreneuron_all_c_files ${coreneuron_all_c_files} ${GENERATED_MECH_C_FILES})
-
 #to indent generated c/cpp files
 if(CLANG_FORMAT_FOUND)
     add_custom_target(formatbuild
@@ -259,7 +257,7 @@ if(CLANG_FORMAT_FOUND)
 endif()
 
 
-add_library(coreneuron ${COMPILE_LIBRARY_TYPE} ${coreneuron_all_headers} ${coreneuron_all_templates} ${coreneuron_all_c_files} ${KINDERIV_H})
+add_library(coreneuron ${COMPILE_LIBRARY_TYPE} ${coreneuron_all_headers} ${coreneuron_all_templates} ${KINDERIV_H})
 
 set(link_cudacoreneuron)
 set(link_reportinglib)
